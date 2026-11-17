@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: casino_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: casino_admin
+      POSTGRES_PASSWORD: casino_secure_dev_password
+      POSTGRES_DB: casino_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casino_admin -d casino_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: casino_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.backend
+    container_name: casino_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://casino_admin:casino_secure_dev_password@postgres:5432/casino_platform?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: super_secure_dev_secret_key_minimum_256_bits_length_123456789
+    ports:
+      - "4000:4000"
+
+  admin-dashboard:
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.admin
+    container_name: casino_admin_dashboard
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+
+volumes:
+  pgdata:
+  redisdata:

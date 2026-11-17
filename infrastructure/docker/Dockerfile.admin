@@ -1,0 +1,32 @@
+# Build Stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json tsconfig.base.json .prettierrc ./
+COPY packages/ ./packages/
+COPY apps/admin-dashboard/ ./apps/admin-dashboard/
+
+RUN npm install
+RUN npm run build --workspace=@casino/shared-types
+RUN npm run build --workspace=@casino/api-contracts
+RUN npm run build --workspace=@casino/admin-dashboard
+
+# Production Stage
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+COPY --from=builder /app/apps/admin-dashboard/package.json ./apps/admin-dashboard/
+COPY --from=builder /app/apps/admin-dashboard/.next ./apps/admin-dashboard/.next
+COPY --from=builder /app/apps/admin-dashboard/public ./apps/admin-dashboard/public
+COPY --from=builder /app/node_modules ./node_modules
+
+WORKDIR /app/apps/admin-dashboard
+
+EXPOSE 3001
+
+CMD ["npm", "start"]

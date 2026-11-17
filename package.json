@@ -1,0 +1,25 @@
+{
+  "name": "casino-platform-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enterprise-grade gaming platform monorepo",
+  "workspaces": [
+    "apps/backend",
+    "apps/admin-dashboard",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "backend:dev": "npm run start:dev --workspace=apps/backend",
+    "admin:dev": "npm run dev --workspace=apps/admin-dashboard"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  }
+}
