@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.WalletBalanceBadge
@@ -211,8 +212,11 @@ fun DiceScreen(
                     val won = if (isRollOver) roll > targetValue else roll < targetValue
                     isWin = won
                     if (won) {
+                        CasinoAudioManager.playCashout()
                         val payout = (selectedBet * multiplier).toLong()
                         onBalanceChange(userBalance - selectedBet + payout)
+                    } else {
+                        CasinoAudioManager.playCrash()
                     }
                 }
             )

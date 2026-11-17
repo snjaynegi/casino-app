@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.CasinoSecondaryButton
@@ -262,12 +263,16 @@ fun DeepDiveScreen(
                             currentTierIdx = nextIdx
                             statusMessage = "Safe descent to ${nextTier.depthMeters}m! Multiplier: ${nextTier.multiplier}x."
                             if (nextIdx == 5) {
+                                CasinoAudioManager.playCashout()
                                 val win = (betAmount * tiers[4].multiplier).toLong()
                                 onBalanceChange(userBalance + win)
                                 isDiving = false
                                 statusMessage = "DEEP TRENCH CONQUERED! Won +$win VCOIN!"
+                            } else {
+                                CasinoAudioManager.playSonar()
                             }
                         } else {
+                            CasinoAudioManager.playCrash()
                             isCrushed = true
                             isDiving = false
                             statusMessage = "Hull compromised by deep pressure at ${nextTier.depthMeters}m!"
@@ -279,6 +284,7 @@ fun DeepDiveScreen(
                     CasinoSecondaryButton(
                         text = "SURFACE & BANK (+$currentWin VCOIN)",
                         onClick = {
+                            CasinoAudioManager.playCashout()
                             onBalanceChange(userBalance + currentWin)
                             isDiving = false
                             statusMessage = "Safely surfaced! Banked +$currentWin VCOIN at ${currentMultiplier}x!"

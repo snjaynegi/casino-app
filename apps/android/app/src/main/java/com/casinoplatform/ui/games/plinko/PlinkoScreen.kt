@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.WalletBalanceBadge
@@ -313,6 +314,7 @@ fun PlinkoScreen(
 
                     // Animate through rows
                     for (i in 0 until rowCount) {
+                        CasinoAudioManager.playBounce()
                         ballX.animateTo(pathSteps[i], tween(120))
                         ballY.animateTo((i + 1).toFloat() / rowCount, tween(120))
                         delay(40)
@@ -326,6 +328,12 @@ fun PlinkoScreen(
                     activeSlotIndex = slotIdx
                     val hitMult = multipliers[slotIdx]
                     val win = (betAmount * hitMult).toLong()
+
+                    if (hitMult >= 1.0) {
+                        CasinoAudioManager.playCashout()
+                    } else {
+                        CasinoAudioManager.playCrash()
+                    }
 
                     lastMultiplier = hitMult
                     lastWinAmount = win

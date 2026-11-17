@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.WalletBalanceBadge
@@ -93,6 +94,7 @@ fun RocketRescueScreen(
                 if (rounded >= crashPoint) {
                     currentMultiplier = crashPoint
                     flightState = FlightState.CRASHED
+                    CasinoAudioManager.playCrash()
                     recentMultipliers.add(0, crashPoint)
                     break
                 } else {
@@ -254,15 +256,21 @@ fun RocketRescueScreen(
                             )
                         }
                         FlightState.FLYING -> {
+                            val multColor = when {
+                                currentMultiplier >= 50.0 -> Color(0xFFFF0055)
+                                currentMultiplier >= 10.0 -> PrimaryGold
+                                currentMultiplier >= 2.0 -> NeonEmerald
+                                else -> NeonCyan
+                            }
                             Text(
                                 text = String.format("%.2fx", currentMultiplier),
-                                color = PrimaryGold,
+                                color = multColor,
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.Black
                             )
                             Text(
                                 text = "ALTITUDE COMPOUNDING",
-                                color = NeonCyan,
+                                color = multColor.copy(alpha = 0.8f),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -345,6 +353,7 @@ fun RocketRescueScreen(
                         textColor = TextPrimary,
                         onClick = {
                             val winPayout = (selectedBet * currentMultiplier).toLong()
+                            CasinoAudioManager.playCashout()
                             onBalanceChange(userBalance + winPayout)
                             flightState = FlightState.CASHED_OUT
                             recentMultipliers.add(0, currentMultiplier)

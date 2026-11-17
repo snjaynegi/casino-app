@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.CasinoSecondaryButton
@@ -160,6 +161,7 @@ fun SkyElevatorScreen(
                                 // 1 out of 3 doors is a stall trap
                                 val trapDoor = Random.nextInt(3)
                                 if (doorIdx == trapDoor) {
+                                    CasinoAudioManager.playCrash()
                                     isStalled = true
                                     isRiding = false
                                     statusText = "Trap door selected! Elevator cable snapped."
@@ -168,10 +170,13 @@ fun SkyElevatorScreen(
                                     currentFloor = nextFloor
                                     statusText = "Safe passage! Ascended to Floor $nextFloor (${floorMultipliers[nextFloor - 1]}x)!"
                                     if (nextFloor == 6) {
+                                        CasinoAudioManager.playCashout()
                                         val win = (betAmount * floorMultipliers[5]).toLong()
                                         onBalanceChange(userBalance + win)
                                         isRiding = false
                                         statusText = "PENTHOUSE REACHED! Won +$win VCOIN!"
+                                    } else {
+                                        CasinoAudioManager.playElevatorDing()
                                     }
                                 }
                             },
@@ -283,6 +288,7 @@ fun SkyElevatorScreen(
             CasinoSecondaryButton(
                 text = "EXIT ELEVATOR & BANK (+$currentPayout VCOIN)",
                 onClick = {
+                    CasinoAudioManager.playCashout()
                     onBalanceChange(userBalance + currentPayout)
                     isRiding = false
                     statusText = "Safely exited on Floor $currentFloor! Banked +$currentPayout VCOIN!"

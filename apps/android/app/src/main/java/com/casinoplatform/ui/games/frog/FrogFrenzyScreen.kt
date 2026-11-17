@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.CasinoSecondaryButton
@@ -262,12 +263,16 @@ fun FrogFrenzyScreen(
                             gameMessage = "Safe landing on Pad #$nextStep! Multiplier is now ${padMultipliers[nextStep - 1]}x."
                             if (nextStep == 6) {
                                 // Reached the golden jackpot pad!
+                                CasinoAudioManager.playCashout()
                                 val win = (betAmount * padMultipliers[5]).toLong()
                                 onBalanceChange(userBalance + win)
                                 isPlaying = false
                                 gameMessage = "JACKPOT! Cleared all 6 pads! Won +$win VCOIN!"
+                            } else {
+                                CasinoAudioManager.playHop()
                             }
                         } else {
+                            CasinoAudioManager.playCrash()
                             isSunk = true
                             isPlaying = false
                             gameMessage = "Lily pad collapsed! You slipped into the pond."
@@ -280,6 +285,7 @@ fun FrogFrenzyScreen(
                     CasinoSecondaryButton(
                         text = "CASH OUT NOW (+${potentialWin} VCOIN)",
                         onClick = {
+                            CasinoAudioManager.playCashout()
                             onBalanceChange(userBalance + potentialWin)
                             isPlaying = false
                             gameMessage = "Successfully banked +$potentialWin VCOIN at ${currentMultiplier}x!"

@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.WalletBalanceBadge
@@ -245,24 +246,28 @@ fun NeonBounceScreen(
                     ballY.animateTo(0.2f, tween(250))
                     ballX.animateTo(0.3f, tween(200))
                     bumperHits++
+                    CasinoAudioManager.playBounce()
                     delay(80)
 
                     // Bumper ricochet 1
                     ballX.animateTo(0.7f, tween(180))
                     ballY.animateTo(0.35f, tween(180))
                     bumperHits++
+                    CasinoAudioManager.playBounce()
                     delay(80)
 
                     // Bumper ricochet 2
                     ballX.animateTo(0.48f, tween(160))
                     ballY.animateTo(0.50f, tween(160))
                     bumperHits++
+                    CasinoAudioManager.playBounce()
                     delay(80)
 
                     // Bumper ricochet 3
                     ballX.animateTo(0.68f, tween(160))
                     ballY.animateTo(0.65f, tween(160))
                     bumperHits++
+                    CasinoAudioManager.playBounce()
                     delay(80)
 
                     // Fall into bottom pocket (0..4)
@@ -275,6 +280,12 @@ fun NeonBounceScreen(
                     val bumperBonus = bumperHits * 0.2
                     val totalMultiplier = Math.round((pocketMult + bumperBonus) * 100.0) / 100.0
                     val win = (betAmount * totalMultiplier).toLong()
+
+                    if (totalMultiplier >= 1.0) {
+                        CasinoAudioManager.playCashout()
+                    } else {
+                        CasinoAudioManager.playCrash()
+                    }
 
                     lastMultiplier = totalMultiplier
                     lastWin = win

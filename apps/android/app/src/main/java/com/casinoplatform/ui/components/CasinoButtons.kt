@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.theme.DarkBackground
 import com.casinoplatform.ui.theme.DarkSurfaceBorder
 import com.casinoplatform.ui.theme.DarkSurfaceElevated
@@ -65,7 +66,10 @@ fun CasinoPrimaryButton(
                 enabled = enabled && !isLoading,
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick
+                onClick = {
+                    CasinoAudioManager.playClick()
+                    onClick()
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -111,7 +115,10 @@ fun CasinoSecondaryButton(
                 enabled = enabled && !isLoading,
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick
+                onClick = {
+                    CasinoAudioManager.playClick()
+                    onClick()
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -148,7 +155,10 @@ fun CasinoBetChip(
                 color = if (isSelected) PrimaryGold else DarkSurfaceBorder,
                 shape = RoundedCornerShape(8.dp)
             )
-            .clickable(onClick = onClick)
+            .clickable {
+                CasinoAudioManager.playClick()
+                onClick()
+            }
             .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {

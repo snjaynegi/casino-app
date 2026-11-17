@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.theme.DarkBackground
 import com.casinoplatform.ui.theme.DarkSurface
 import com.casinoplatform.ui.theme.DarkSurfaceBorder
@@ -57,98 +58,141 @@ fun GameCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(targetValue = if (isPressed) 0.97f else 1.0f, label = "card_scale")
+    val scale by animateFloatAsState(targetValue = if (isPressed) 0.96f else 1.0f, label = "card_scale")
+    val borderColor = if (isPressed) PrimaryGold else DarkSurfaceBorder
 
     Box(
         modifier = modifier
             .scale(scale)
             .clip(RoundedCornerShape(18.dp))
             .background(DarkSurface)
-            .border(1.dp, DarkSurfaceBorder, RoundedCornerShape(18.dp))
+            .border(if (isPressed) 1.5.dp else 1.dp, borderColor, RoundedCornerShape(18.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = onClick
+                onClick = {
+                    CasinoAudioManager.playClick()
+                    onClick()
+                }
             )
-            .padding(14.dp)
+            .padding(12.dp)
     ) {
         Column {
             // Visual game artwork container
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(115.dp)
-                    .clip(RoundedCornerShape(12.dp))
+                    .height(125.dp)
+                    .clip(RoundedCornerShape(14.dp))
             ) {
                 GameArtwork(gameId = gameId)
 
-                // Category badge overlay
+                // High-contrast category pill badge (top-left)
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(DarkBackground.copy(alpha = 0.85f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .background(Color(0xE60A0B10))
+                        .border(1.dp, NeonCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 7.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = category.uppercase(),
                         color = NeonCyan,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.5.sp
                     )
                 }
 
-                // Title banner overlay at bottom
+                // Live player counter indicator badge (top-right)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xE60A0B10))
+                        .padding(horizontal = 7.dp, vertical = 3.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(NeonEmerald)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "$activePlayers LIVE",
+                            color = TextPrimary,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                // Title banner overlay at bottom with glass gradient
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color.Transparent, DarkBackground.copy(alpha = 0.95f))
+                                listOf(Color.Transparent, Color(0xF20A0B10))
                             )
                         )
-                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
-                    Text(
-                        text = title,
-                        color = TextPrimary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = title,
+                            color = TextPrimary,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "RTP $rtp",
+                            color = PrimaryGold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Details footer
+            // Details footer with quick play button CTA
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .clip(CircleShape)
-                            .background(NeonEmerald)
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = "Provably Fair 🛡️",
+                    color = TextSecondary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(DarkSurfaceElevated)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
                     Text(
-                        text = "$activePlayers Playing",
-                        color = TextSecondary,
-                        fontSize = 12.sp
+                        text = "PLAY ▶",
+                        color = PrimaryGold,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-
-                Text(
-                    text = "RTP $rtp",
-                    color = PrimaryGold,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
             }
         }
     }

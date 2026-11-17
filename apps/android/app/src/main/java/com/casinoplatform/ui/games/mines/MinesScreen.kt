@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.casinoplatform.ui.audio.CasinoAudioManager
 import com.casinoplatform.ui.components.CasinoBetChip
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.WalletBalanceBadge
@@ -191,6 +192,7 @@ fun MinesScreen(
                                     isRoundActive = false
                                     isGameOver = true
                                     isWon = false
+                                    CasinoAudioManager.playCrash()
                                 } else {
                                     // Found gem
                                     newStates[index] = MinesTileState.GEM
@@ -198,6 +200,7 @@ fun MinesScreen(
                                     gemsFound++
                                     // Approximate multiplier progression
                                     currentMultiplier = 1.0 + (gemsFound * 0.35)
+                                    CasinoAudioManager.playGemReveal()
                                 }
                             },
                         contentAlignment = Alignment.Center
@@ -258,6 +261,7 @@ fun MinesScreen(
                     textColor = TextPrimary,
                     enabled = gemsFound > 0,
                     onClick = {
+                        CasinoAudioManager.playCashout()
                         onBalanceChange(userBalance + cashoutAmount)
                         isRoundActive = false
                         isGameOver = true
