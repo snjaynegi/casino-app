@@ -26,14 +26,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.casinoplatform.data.model.GameItem
 import com.casinoplatform.data.repository.GamesRepository
+import com.casinoplatform.ui.auth.AuthContainerScreen
 import com.casinoplatform.ui.components.CasinoBottomBar
 import com.casinoplatform.ui.components.CasinoPrimaryButton
 import com.casinoplatform.ui.components.CasinoTopAppBar
 import com.casinoplatform.ui.components.GameCard
 import com.casinoplatform.ui.components.NavTab
 import com.casinoplatform.ui.components.StatCard
+import com.casinoplatform.ui.games.bounce.NeonBounceScreen
 import com.casinoplatform.ui.games.dice.DiceScreen
+import com.casinoplatform.ui.games.dive.DeepDiveScreen
+import com.casinoplatform.ui.games.elevator.SkyElevatorScreen
+import com.casinoplatform.ui.games.frog.FrogFrenzyScreen
 import com.casinoplatform.ui.games.mines.MinesScreen
+import com.casinoplatform.ui.games.plinko.PlinkoScreen
 import com.casinoplatform.ui.games.rocketrescue.RocketRescueScreen
 import com.casinoplatform.ui.leaderboard.LeaderboardScreen
 import com.casinoplatform.ui.lobby.GameDetailDialog
@@ -42,7 +48,6 @@ import com.casinoplatform.ui.profile.ProfileScreen
 import com.casinoplatform.ui.rewards.RewardsScreen
 import com.casinoplatform.ui.theme.CasinoPlatformTheme
 import com.casinoplatform.ui.theme.DarkBackground
-import com.casinoplatform.ui.theme.PrimaryGold
 import com.casinoplatform.ui.theme.TextPrimary
 
 class MainActivity : ComponentActivity() {
@@ -58,13 +63,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainAppScaffold() {
+    var isLoggedIn by remember { mutableStateOf(false) }
+    var currentUsername by remember { mutableStateOf("NeonPilot") }
     var currentTab by remember { mutableStateOf(NavTab.HOME) }
     var userBalance by remember { mutableStateOf(10000L) }
     var selectedGameDetail by remember { mutableStateOf<GameItem?>(null) }
     var activeGameId by remember { mutableStateOf<String?>(null) }
     val gamesRepo = remember { GamesRepository() }
 
-    // Route active game screens
+    // If not logged in, display full betting authentication screen
+    if (!isLoggedIn) {
+        AuthContainerScreen(
+            onAuthSuccess = { user ->
+                currentUsername = user
+                isLoggedIn = true
+                userBalance = 10000L
+            }
+        )
+        return
+    }
+
+    // Route ALL 8 active game screens
     when (activeGameId) {
         "rocket-rescue" -> {
             RocketRescueScreen(
@@ -90,12 +109,52 @@ fun MainAppScaffold() {
             )
             return
         }
+        "plinko-physics" -> {
+            PlinkoScreen(
+                userBalance = userBalance,
+                onBalanceChange = { userBalance = it },
+                onBackClick = { activeGameId = null }
+            )
+            return
+        }
+        "frog-frenzy" -> {
+            FrogFrenzyScreen(
+                userBalance = userBalance,
+                onBalanceChange = { userBalance = it },
+                onBackClick = { activeGameId = null }
+            )
+            return
+        }
+        "deep-dive" -> {
+            DeepDiveScreen(
+                userBalance = userBalance,
+                onBalanceChange = { userBalance = it },
+                onBackClick = { activeGameId = null }
+            )
+            return
+        }
+        "sky-elevator" -> {
+            SkyElevatorScreen(
+                userBalance = userBalance,
+                onBalanceChange = { userBalance = it },
+                onBackClick = { activeGameId = null }
+            )
+            return
+        }
+        "neon-bounce" -> {
+            NeonBounceScreen(
+                userBalance = userBalance,
+                onBalanceChange = { userBalance = it },
+                onBackClick = { activeGameId = null }
+            )
+            return
+        }
     }
 
     Scaffold(
         topBar = {
             CasinoTopAppBar(
-                username = "NeonPilot",
+                username = currentUsername,
                 level = 12,
                 balance = userBalance,
                 onBalanceClick = { userBalance += 500L }
@@ -138,9 +197,12 @@ fun MainAppScaffold() {
                 }
                 NavTab.PROFILE -> {
                     ProfileScreen(
-                        username = "NeonPilot",
+                        username = currentUsername,
                         balance = userBalance,
-                        onSignOut = { currentTab = NavTab.HOME }
+                        onSignOut = {
+                            isLoggedIn = false
+                            currentTab = NavTab.HOME
+                        }
                     )
                 }
             }
@@ -205,7 +267,7 @@ fun HomeScreenContent(
 
         item {
             Text(
-                text = "Popular Instant Games",
+                text = "Popular Games",
                 color = TextPrimary,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -218,6 +280,7 @@ fun HomeScreenContent(
                 category = "Crash",
                 rtp = "97.0%",
                 activePlayers = 412,
+                gameId = "rocket-rescue",
                 onClick = {
                     onSelectGame(
                         GameItem(
@@ -244,6 +307,7 @@ fun HomeScreenContent(
                 category = "Instant",
                 rtp = "98.0%",
                 activePlayers = 215,
+                gameId = "mines-grid",
                 onClick = {
                     onSelectGame(
                         GameItem(
@@ -266,10 +330,38 @@ fun HomeScreenContent(
 
         item {
             GameCard(
+                title = "Plinko Physics",
+                category = "Instant",
+                rtp = "97.0%",
+                activePlayers = 175,
+                gameId = "plinko-physics",
+                onClick = {
+                    onSelectGame(
+                        GameItem(
+                            id = "plinko-physics",
+                            title = "Plinko Physics",
+                            category = "INSTANT",
+                            description = "Multi-row Galton board with authoritative peg bounce physics.",
+                            rtp = "97.0%",
+                            volatility = "MEDIUM",
+                            activePlayers = 175,
+                            minBet = 10,
+                            maxBet = 5000,
+                            maxMultiplier = "1,000x",
+                            rules = listOf("Drop balls through pins into outer high multiplier slots.")
+                        )
+                    )
+                }
+            )
+        }
+
+        item {
+            GameCard(
                 title = "Cyber Dice",
                 category = "Instant",
                 rtp = "98.5%",
                 activePlayers = 88,
+                gameId = "cyber-dice",
                 onClick = {
                     onSelectGame(
                         GameItem(
@@ -284,6 +376,33 @@ fun HomeScreenContent(
                             maxBet = 10000,
                             maxMultiplier = "990x",
                             rules = listOf("Set roll target", "Predict Over or Under", "Win instant multiplied coins")
+                        )
+                    )
+                }
+            )
+        }
+
+        item {
+            GameCard(
+                title = "Frog Frenzy",
+                category = "Arcade",
+                rtp = "96.5%",
+                activePlayers = 189,
+                gameId = "frog-frenzy",
+                onClick = {
+                    onSelectGame(
+                        GameItem(
+                            id = "frog-frenzy",
+                            title = "Frog Frenzy",
+                            category = "ARCADE",
+                            description = "Guide your cyber frog across moving neon lily pads with rising hazard risk.",
+                            rtp = "96.5%",
+                            volatility = "LOW",
+                            activePlayers = 189,
+                            minBet = 10,
+                            maxBet = 2500,
+                            maxMultiplier = "500x",
+                            rules = listOf("Hop forward across moving platforms.", "Cash out anytime before slipping.")
                         )
                     )
                 }

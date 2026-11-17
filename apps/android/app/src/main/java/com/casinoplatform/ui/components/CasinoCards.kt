@@ -52,7 +52,8 @@ fun GameCard(
     rtp: String,
     activePlayers: Int,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameId: String = ""
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -72,26 +73,22 @@ fun GameCard(
             .padding(14.dp)
     ) {
         Column {
-            // Visual header representation with gradient accent
+            // Visual game artwork container
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp)
+                    .height(115.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(PurpleGradientStart.copy(alpha = 0.6f), DarkSurfaceElevated)
-                        )
-                    ),
-                contentAlignment = Alignment.Center
             ) {
+                GameArtwork(gameId = gameId)
+
                 // Category badge overlay
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(6.dp))
-                        .background(DarkBackground.copy(alpha = 0.8f))
+                        .background(DarkBackground.copy(alpha = 0.85f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
@@ -102,13 +99,25 @@ fun GameCard(
                     )
                 }
 
-                // Title typography
-                Text(
-                    text = title,
-                    color = TextPrimary,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                // Title banner overlay at bottom
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color.Transparent, DarkBackground.copy(alpha = 0.95f))
+                            )
+                        )
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = title,
+                        color = TextPrimary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))

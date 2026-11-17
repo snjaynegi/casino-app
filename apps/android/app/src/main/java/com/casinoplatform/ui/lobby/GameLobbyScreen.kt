@@ -136,6 +136,7 @@ fun GameLobbyScreen(
                         category = game.category,
                         rtp = game.rtp,
                         activePlayers = game.activePlayers,
+                        gameId = game.id,
                         onClick = { onSelectGame(game) }
                     )
                 }
